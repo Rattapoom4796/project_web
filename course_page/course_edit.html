@@ -131,14 +131,17 @@
 
                         <label for="people_count">People Count:</label>
                         <input type="number" id="people_count" name="people_count" value="${course.people_count}" required />
-
-                        <label for="image">Image:</label>
-                        <input type="file" id="image" name="image" />
-                        ${course.image ? `<img src="/file_img/${course.image}" alt="Current Course Image" class="current-image" />` : ''}
-
                         <button type="submit">Update Course</button>
                     </form>
                 `;
+
+                //         <label for="image">Image:</label>
+                //         <input type="file" id="image" name="image" />
+                //         ${course.image ? `<img src="/file_img/${course.image}" alt="Current Course Image" class="current-image" />` : ''}
+
+                //         <button type="submit">Update Course</button>
+                //     </form>
+                // `;
 
                 document.getElementById('edit-course-form').addEventListener('submit', async (event) => {
                     event.preventDefault();

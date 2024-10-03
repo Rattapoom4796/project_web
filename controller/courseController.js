@@ -5,23 +5,23 @@ const bcrypt = require ("bcryptjs");
 const multer = require('multer');
 const path = require('path');
 
-//upload img
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const dirPath = path.join(__dirname, '../file_img'); // เปลี่ยนเป็นโฟลเดอร์ที่ต้องการเก็บไฟล์
-        console.log("Saving to directory: ", dirPath); // ตรวจสอบว่าที่เก็บไฟล์ถูกต้อง
-        cb(null, dirPath); // กำหนดโฟลเดอร์สำหรับเก็บไฟล์ภาพ
-    },
-    filename: function (req, file, cb) {
-        const fileName = Date.now() + '-' + file.originalname;
-        console.log("Uploading file as: ", fileName); // ตรวจสอบชื่อไฟล์
-        cb(null, fileName); // ตั้งชื่อไฟล์ตามเวลาและชื่อไฟล์ต้นฉบับ
-    }
-});
+// //upload img
+// const storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//         const dirPath = path.join(__dirname, '../file_img'); // เปลี่ยนเป็นโฟลเดอร์ที่ต้องการเก็บไฟล์
+//         console.log("Saving to directory: ", dirPath); // ตรวจสอบว่าที่เก็บไฟล์ถูกต้อง
+//         cb(null, dirPath); // กำหนดโฟลเดอร์สำหรับเก็บไฟล์ภาพ
+//     },
+//     filename: function (req, file, cb) {
+//         const fileName = Date.now() + '-' + file.originalname;
+//         console.log("Uploading file as: ", fileName); // ตรวจสอบชื่อไฟล์
+//         cb(null, fileName); // ตั้งชื่อไฟล์ตามเวลาและชื่อไฟล์ต้นฉบับ
+//     }
+// });
 
 
 // กำหนดการอัปโหลดโดยใช้ multer
-const upload = multer({ storage: storage });
+//const upload = multer({ storage: storage });
 
 // Get all courses
 exports.getCourses = async (req, res) => { 
@@ -48,7 +48,7 @@ exports.getCourse = async (req, res) => {
 // Create a new course
 exports.createCourse = async (req, res) => {
     const { course_name, course_detail, course_place, people_count, date, time } = req.body;
-    const image = req.file ? req.file.filename : null; // Use file name if an image is uploaded
+    //const image = req.file ? req.file.filename : null; // Use file name if an image is uploaded
 
 
     const newCourse = new Course({
@@ -58,7 +58,7 @@ exports.createCourse = async (req, res) => {
         people_count,
         date,
         time,
-        image
+        //image
     });
 
     try {
@@ -117,4 +117,4 @@ exports.getHomepage = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
-exports.upload = upload.single('image'); // ใช้กับการอัปโหลดไฟล์เดี่ยว
+//exports.upload = upload.single('image'); // ใช้กับการอัปโหลดไฟล์เดี่ยว

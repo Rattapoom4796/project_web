@@ -41,8 +41,8 @@ router.get('/course', async (req, res) => {
 
 
 // เพิ่ม middleware upload สำหรับการอัปโหลดไฟล์ภาพใน post และ put routes
-router.post("/course",  upload, authenticateToken,createCourse);
-router.put("/course/:id" , upload, authenticateToken,updateCourse);
+router.post("/course",  /*upload,*/ authenticateToken,createCourse);
+router.put("/course/:id" , /*upload,*/ authenticateToken,updateCourse);
 
 router.delete("/course/:id", authenticateToken, deleteCourse);
 

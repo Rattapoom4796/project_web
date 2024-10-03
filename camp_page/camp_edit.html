@@ -133,14 +133,16 @@
 
                         <label for="people_count">People Count:</label>
                         <input type="number" id="people_count" name="people_count" value="${camp.people_count}" required />
-
-                        <label for="image">Image:</label>
-                        <input type="file" id="image" name="image" />
-                        ${camp.image ? `<img src="/file_img/${camp.image}" alt="Current Camp Image" class="current-image" />` : ''}
-
                         <button type="submit">Update Camp</button>
-                    </form>
-                `;
+                        </form>
+                        `;    
+                //         <label for="image">Image:</label>
+                //         <input type="file" id="image" name="image" />
+                //         ${camp.image ? `<img src="/file_img/${camp.image}" alt="Current Camp Image" class="current-image" />` : ''}
+
+                //         <button type="submit">Update Camp</button>
+                //     </form>
+                // `;
 
                 document.getElementById('edit-camp-form').addEventListener('submit', async (event) => {
                     event.preventDefault();

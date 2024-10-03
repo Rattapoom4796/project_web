@@ -40,8 +40,8 @@ router.get('/camps', async (req, res) => {
 
 
 // Add middleware upload for file uploads in post and put routes
-router.post("/camp", upload, authenticateToken, createCamp);
-router.put("/camp/:id", upload, authenticateToken, updateCamp);
+router.post("/camp", /*upload,*/ authenticateToken, createCamp);
+router.put("/camp/:id", /*upload,*/ authenticateToken, updateCamp);
 router.delete("/camp/:id", authenticateToken, deleteCamp);
 
 module.exports = router;

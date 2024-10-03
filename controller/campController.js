@@ -6,22 +6,22 @@ const multer = require('multer');
 const path = require('path');
 
 //upload img
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const dirPath = path.join(__dirname, '../file_img'); // เปลี่ยนเป็นโฟลเดอร์ที่ต้องการเก็บไฟล์
-        console.log("Saving to directory: ", dirPath); // ตรวจสอบว่าที่เก็บไฟล์ถูกต้อง
-        cb(null, dirPath); // กำหนดโฟลเดอร์สำหรับเก็บไฟล์ภาพ
-    },
-    filename: function (req, file, cb) {
-        const fileName = Date.now() + '-' + file.originalname;
-        console.log("Uploading file as: ", fileName); // ตรวจสอบชื่อไฟล์
-        cb(null, fileName); // ตั้งชื่อไฟล์ตามเวลาและชื่อไฟล์ต้นฉบับ
-    }
-});
+// const storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//         const dirPath = path.join(__dirname, '../file_img'); // เปลี่ยนเป็นโฟลเดอร์ที่ต้องการเก็บไฟล์
+//         console.log("Saving to directory: ", dirPath); // ตรวจสอบว่าที่เก็บไฟล์ถูกต้อง
+//         cb(null, dirPath); // กำหนดโฟลเดอร์สำหรับเก็บไฟล์ภาพ
+//     },
+//     filename: function (req, file, cb) {
+//         const fileName = Date.now() + '-' + file.originalname;
+//         console.log("Uploading file as: ", fileName); // ตรวจสอบชื่อไฟล์
+//         cb(null, fileName); // ตั้งชื่อไฟล์ตามเวลาและชื่อไฟล์ต้นฉบับ
+//     }
+// });
 
 
 // กำหนดการอัปโหลดโดยใช้ multer
-const upload = multer({ storage: storage });
+//const upload = multer({ storage: storage });
 
 // Get all camps
 exports.getCamps = async (req, res) => { 
@@ -48,7 +48,7 @@ exports.getCamp = async (req, res) => {
 // Create a new camp
 exports.createCamp = async (req, res) => {
     const { camp_name, camp_detail, camp_place, camp_topic, date, time, people_count } = req.body;
-    const image = req.file ? req.file.filename : null; // ใช้ชื่อไฟล์ภาพ
+    //const image = req.file ? req.file.filename : null; // ใช้ชื่อไฟล์ภาพ
 
     const newCamp = new Camp({
         camp_name,
@@ -58,7 +58,7 @@ exports.createCamp = async (req, res) => {
         date,
         time,
         people_count,
-        image
+        //image
     });
 
     try {
@@ -118,4 +118,4 @@ exports.getHomepage = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
-exports.upload = upload.single('image'); // ใช้กับการอัปโหลดไฟล์เดี่ยว
+//exports.upload = upload.single('image'); // ใช้กับการอัปโหลดไฟล์เดี่ยว

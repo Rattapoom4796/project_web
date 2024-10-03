@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ตั้งค่าให้ Express ใช้โฟลเดอร์ file_img สำหรับไฟล์ static
-app.use('/file_img', express.static(path.join(__dirname, 'file_img')));
+//app.use('/file_img', express.static(path.join(__dirname, 'file_img')));
 
 // ตรวจสอบการเข้าสู่ระบบโดยใช้ JWT
 function checkAuth(req, res, next) {

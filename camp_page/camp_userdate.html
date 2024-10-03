@@ -73,31 +73,32 @@
                 const navbar = await response.text();
                 
                 document.querySelector('#navbar-container2').innerHTML = navbar;
-                console.log('Navbar loaded:', navbar); // ตรวจสอบเนื้อหาที่โหลดมา
+                //console.log('Navbar loaded:', navbar); // ตรวจสอบเนื้อหาที่โหลดมา
                 
                 // ตั้งค่า event listener หลังจากที่ Navbar โหลดเสร็จ
                 const logoutBtn = document.getElementById('logout-btn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', function(event) {
-                        console.log('Logout button clicked'); // ตรวจสอบการคลิก
-                        event.preventDefault(); // Prevent default link behavior
-                        const confirmLogout = confirm("Are you sure you want to log out?");
-                        if (confirmLogout) {
-                            localStorage.removeItem('access-token'); // Remove token from localStorage
-                            window.location.href = "camp_homepage.html"; // Redirect to camp_homepage.html
-                        }
-                    });
-                } else {
-                    console.error('Logout button not found');
-                }
-            } catch (error) {
-                console.error('Error loading navbar:', error);
-            }
+            //     if (logoutBtn) {
+            //         logoutBtn.addEventListener('click', function(event) {
+            //             console.log('Logout button clicked'); // ตรวจสอบการคลิก
+            //             event.preventDefault(); // Prevent default link behavior
+            //             const confirmLogout = confirm("Are you sure you want to log out?");
+            //             if (confirmLogout) {
+            //                 localStorage.removeItem('access-token'); // Remove token from localStorage
+            //                 window.location.href = "camp_homepage.html"; // Redirect to camp_homepage.html
+            //             }
+            //         });
+            //     } else {
+            //         console.error('Logout button not found');
+            //     }
+             } catch (error) {
+                 console.error('Error loading navbar:', error);
+             }
         }
+    
 
         async function loadYearOptions() {
             // Assuming you have a list of years you want to show in the dropdown
-            const years = [2021, 2022, 2023, 2024, 2025]; // Modify this as needed
+            const years = [2021, 2022, 2023, 2024, 2025,2026,2027,2028]; // Modify this as needed
 
             const yearFilter = document.getElementById('yearFilter'); //เลือกแต่ละปี
             
@@ -171,13 +172,16 @@
                             tbody.appendChild(row);
                         }
                     });
-
-                    // Add event listeners for buttons
-                    addButtonEventListeners();
-
-                } catch (error) {
-                    console.error('Error fetching camps:', error);
-                }
+                    const moreDetailButtons = document.querySelectorAll('.more-detail-btn');
+                moreDetailButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const campId = this.getAttribute('data-id');
+                        window.location.href = `camp_detailuser.html?id=${campId}`;
+                    });
+                });
+            } catch (error) {
+                console.error('Error fetching camps:', error);
+            }
             }
 
             document.addEventListener('DOMContentLoaded', async () => {
@@ -196,6 +200,43 @@
                     window.location.href = 'camp_homepage.html'; // Navigate back to the admin page
                 });
             });
+            async function loadCampDetail() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const campId = urlParams.get('id');
+
+            if (!campId) {
+                alert('No camp ID provided.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/camp/${campId}`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const camp = await response.json();
+                
+                const detailContainer = document.querySelector('#camp-detail-container');
+                detailContainer.innerHTML = `
+                    <div class="camp-detail-card">
+                        <div class="camp-info">
+                            <h2>${camp.camp_name}</h2>
+                            <p><strong>Details:</strong> ${camp.camp_detail}</p>
+                            <p><strong>Place:</strong> ${camp.camp_place}</p>
+                            <p><strong>Topic:</strong> ${camp.camp_topic}</p>
+                            <p><strong>Date:</strong> ${new Date(camp.date).toLocaleDateString()}</p>
+                            <p><strong>Time:</strong> ${camp.time}</p>
+                            <p><strong>People Count:</strong> ${camp.people_count}</p>
+                        </div>
+                        `;
+                //         <div class="camp-image-container">
+                //             <img src="/file_img/${camp.image}" alt="Camp Image" class="camp-image" />
+                //         </div>
+                //     </div>
+                // `;
+            } catch (error) {
+                console.error('Error fetching camp details:', error);
+                document.querySelector('#camp-detail-container').innerHTML = '<p>Error loading camp details.</p>';
+            }
+        }
     </script>
 </body>
 </html>
