@@ -1,0 +1,68 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* กระจายเนื้อหาซ้ายและขวา */
+    background-color: #EEDEB6;
+    color: white;
+    padding:  1rem;
+    position: relative; /* ทำให้ navbar กลายเป็นพ่อของ img */
+   /* height: 80px; /* กำหนดความสูงของ navbar */
+}
+
+.navbar img {
+    position: absolute; /* ทำให้รูปภาพไม่กระทบต่อขนาดของ navbar */
+    top: 50%;
+    left: 1rem;
+    transform: translateY(-50%);
+    height: 150px; /* ปรับขนาดโลโก้ให้เหมาะสม */
+}
+
+.navbar-links {
+    display: flex;
+    flex: 15x; /* ขยายส่วนนี้เพื่อจัดกึ่งกลาง */
+    justify-content: center; /* จัดลิงก์ Camp และ Course ให้อยู่ตรงกลาง */
+    gap: 15px;
+    width: 100%; 
+    max-width: 1200px;
+}
+
+.navbar a {
+    color: rgb(4, 4, 4);
+    text-decoration: none;
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+}
+
+.navbar a:hover {
+    text-decoration: underline;
+}
+
+/*login*/
+.navbar-login {
+    margin-left: auto; /* ดันปุ่ม login ไปด้านขวาสุด */
+}
+
+.login-btn {
+    padding: 0.5rem 1rem;
+    background-color: #ffffff; /* สีพื้นหลังปุ่ม login */
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-btn:hover {
+    background-color: #ffffff; /* เปลี่ยนสีเมื่อ hover */
+}
+
+.login-btn i {
+    margin-right: 0.5rem; /* ช่องว่างระหว่างไอคอนและข้อความ */
+}

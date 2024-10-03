@@ -1,0 +1,86 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f5f5f5;
+    padding: 1em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-container h1 {
+    margin: 0;
+}
+
+.back-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5em 1em;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.content-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center; /* Center content horizontally */
+    padding: 1em;
+}
+
+#camp-detail-container {
+    flex: 1;
+    display: flex;
+    justify-content: center; /* Center content within this container */
+}
+
+.camp-detail-card {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start; /* Align items at the top */
+    width: 100%;
+    max-width: 1200px; /* Limit max width for better readability */
+    position: relative; /* Position relative for absolute positioning inside */
+    background-color: #f0f0f0; /* Light grey background color */
+    padding: 1em; /* Add padding for spacing */
+    border-radius: 8px; /* Rounded corners for a soft look */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.camp-info {
+    flex: 1;
+    margin-right: 1em;
+}
+
+.camp-image-container {
+    flex-shrink: 0;
+    width: 40%;
+    position: relative; /* For containing the absolute positioned text */
+}
+
+.camp-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.camp-info-text {
+    position: absolute; /* Position the text absolutely */
+    top: 0;
+    left: 0;
+    margin: 1em; /* Add margin if needed */
+    background: rgba(255, 255, 255, 0.8); /* Background for better readability */
+    padding: 0.5em; /* Padding for better appearance */
+    border-radius: 4px; /* Rounded corners */
+}
+
+.back-btn-container {
+    margin: 1em 0;
+    text-align: right;
+}

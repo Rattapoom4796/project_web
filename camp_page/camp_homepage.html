@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="stylesadmin.css">
+    <title>Homepage</title>
+    
+    
+</head>
+<body>
+    <div id="navbar-container"></div> <!-- จุดที่เราจะใส่ navbar -->
+    
+    <h1 style="text-align: center;">Camps Table</h1>
+
+    <div class="filter-container">
+        <label for="yearFilter">Select Year:</label>
+        <select id="yearFilter">
+            <!-- ตัวเลือกปีจะถูกเพิ่มที่นี่โดย JavaScript -->
+        </select>
+    </div>
+
+    <table id="campsTable">
+        <thead>
+            <tr>
+                <th>ชื่อค่าย</th>
+                <th>หัวข้อค่าย</th>
+                <th>เขต</th>
+                <th>วัน/เดือน/ปี</th>
+                <th>จำนวนคน</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            <!-- ข้อมูลจะถูกเพิ่มที่นี่โดย JavaScript -->
+        </tbody>
+    </table>
+
+    <script>
+        async function loadNavbar() {
+            try {
+                const response = await fetch('navbar.html');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const navbar = await response.text();
+                
+                document.querySelector('#navbar-container').innerHTML = navbar;
+            } catch (error) {
+                console.error('Error loading navbar:', error);
+            }
+        }
+
+        function loadYearOptions() {
+            const years = ['Select',2021, 2022, 2023, 2024, 2025];
+            const yearFilter = document.getElementById('yearFilter');
+
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearFilter.appendChild(option);
+            });
+
+            // Redirect to camps_admindate with the selected year
+            yearFilter.addEventListener('change', () => {
+                const selectedYear = yearFilter.value;
+                window.location.href = `camp_userdate.html?year=${selectedYear}`;
+            });
+        }
+        function formatDate(dateString) {
+            // Return date in format DD/MM/YYYY
+            const date = new Date(dateString);
+            const day = ("0" + date.getDate()).slice(-2);
+            const month = ("0" + (date.getMonth() + 1)).slice(-2);
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+        
+        async function loadCamps() {
+            try {
+                const response = await fetch('/api/camps');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const camps = await response.json();
+                
+                const tbody = document.querySelector('#campsTable tbody');
+                tbody.innerHTML = '';
+
+                camps.forEach(camp => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <div class="camp-name-container">
+                                ${camp.camp_name}
+                                <br>
+                                <button class="more-detail-btn" data-id="${camp._id}">
+                                    <i class="fa-solid fa-list"></i> More Detail
+                                </button>
+                            </div>
+                        </td>
+                        <td>${camp.camp_topic}</td>
+                        <td>${camp.camp_place}</td>
+                       <td>${formatDate(camp.date)}</td>
+                        <td>${camp.people_count}</td>
+                        
+                            
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                const moreDetailButtons = document.querySelectorAll('.more-detail-btn');
+                moreDetailButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const campId = this.getAttribute('data-id');
+                        window.location.href = `camp_detailuser.html?id=${campId}`;
+                    });
+                });
+            } catch (error) {
+                console.error('Error fetching camps:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadYearOptions();
+            loadNavbar();
+            loadCamps();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="stylesadmin.css">
+    <link rel="stylesheet" href="stylesedit.css">
+    <title>Edit Camp</title>
+</head>
+<body>
+    <div id="navbar-container2"></div>
+
+    <div class="header-container">
+        <h1>Edit Camp</h1>
+        <a href="camp_adminpage.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back 
+        </a>
+    </div>
+
+    <div class="content-container">
+        <div id="edit-camp-container">
+            <!-- Edit camp form will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        async function loadNavbar() {
+            try {
+                const response = await fetch('navbaradmin.html');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const navbar = await response.text();
+                document.querySelector('#navbar-container2').innerHTML = navbar;
+                console.log('Navbar loaded:', navbar);
+
+                const logoutBtn = document.getElementById('logout-btn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', function(event) {
+                        console.log('Logout button clicked');
+                        event.preventDefault();
+                        const confirmLogout = confirm("Are you sure you want to log out?");
+                        if (confirmLogout) {
+                            localStorage.removeItem('access-token');
+                            window.location.href = "camp_homepage.html";
+                        }
+                    });
+                } else {
+                    console.error('Logout button not found');
+                }
+            } catch (error) {
+                console.error('Error loading navbar:', error);
+            }
+        }
+
+        async function checkAuth() {
+            const token = localStorage.getItem('access-token');
+            if (!token) {
+                window.location.href = '/camp_login.html';
+                return;
+            }
+            try {
+                const response = await fetch('/api/auth/validate', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = '/camp_login';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = '/camp_login';
+            }
+        }
+
+        function formatDateForInput(dateString) {
+            const date = new Date(dateString);
+            const day = ("0" + date.getDate()).slice(-2);
+            const month = ("0" + (date.getMonth() + 1)).slice(-2);
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        function parseDate(dateString) {
+            const [day, month, year] = dateString.split('/');
+            return new Date(`${year}-${month}-${day}`);
+        }
+
+        function isValidTime(time) {
+            const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+            return timeRegex.test(time);
+        }
+
+        async function loadCampForEdit() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const campId = urlParams.get('id');
+
+            if (!campId) {
+                alert('No camp ID provided.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/camp/${campId}`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const camp = await response.json();
+
+                const editContainer = document.querySelector('#edit-camp-container');
+                editContainer.innerHTML = `
+                    <form id="edit-camp-form" enctype="multipart/form-data">
+                        <input type="hidden" name="id" value="${camp._id}" />
+                        <label for="camp_name">Camp Name:</label>
+                        <input type="text" id="camp_name" name="camp_name" value="${camp.camp_name}" required />
+
+                        <label for="camp_detail">Camp Detail:</label>
+                        <textarea id="camp_detail" name="camp_detail" rows="4" required>${camp.camp_detail}</textarea>
+                        
+                        <label for="camp_place">Camp Place:</label>
+                        <select id="camp_place" name="camp_place" required>
+                            <option value="พัทลุง" ${camp.camp_place === "พัทลุง" ? 'selected' : ''}>พัทลุง</option>
+                            <option value="สงขลา" ${camp.camp_place === "สงขลา" ? 'selected' : ''}>สงขลา</option>
+                        </select><br>
+
+                        <label for="camp_topic">Camp Topic:</label>
+                        <input type="text" id="camp_topic" name="camp_topic" value="${camp.camp_topic}" required />
+
+                        <label for="date">Date (DD/MM/YYYY):</label>
+                        <input type="text" id="date" name="date" value="${formatDateForInput(camp.date)}" placeholder="DD/MM/YYYY" required />
+
+                        <label for="time">Time (00:00):</label>
+                        <input type="text" id="time" name="time" value="${camp.time}" placeholder="00:00" required />
+
+                        <label for="people_count">People Count:</label>
+                        <input type="number" id="people_count" name="people_count" value="${camp.people_count}" required />
+
+                        <label for="image">Image:</label>
+                        <input type="file" id="image" name="image" />
+                        ${camp.image ? `<img src="/file_img/${camp.image}" alt="Current Camp Image" class="current-image" />` : ''}
+
+                        <button type="submit">Update Camp</button>
+                    </form>
+                `;
+
+                document.getElementById('edit-camp-form').addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    
+                    const formData = new FormData(event.target);
+                    const token = localStorage.getItem('access-token');
+
+                    // Parse the date input value
+                    const dateInput = document.getElementById('date').value;
+                    const parsedDate = parseDate(dateInput);
+                    formData.set('date', parsedDate.toISOString());
+
+                    // Validate and parse the time input value
+                    const timeInput = document.getElementById('time').value;
+                    if (!isValidTime(timeInput)) {
+                        alert('Please enter a valid time in HH:MM format');
+                        return;
+                    }
+                    formData.set('time', timeInput);
+
+                    try {
+                        const response = await fetch(`/api/camp/${camp._id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: formData
+                        });
+
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        const updatedCamp = await response.json();
+                        alert('Camp updated successfully!');
+                        window.location.href = 'camp_adminpage.html';
+                    } catch (error) {
+                        console.error('Error updating camp:', error);
+                        alert('Failed to update camp');
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching camp details:', error);
+                document.querySelector('#edit-camp-container').innerHTML = '<p>Error loading camp details.</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAuth();
+            await loadNavbar();
+            await loadCampForEdit();
+        });
+    </script>
+</body>
+</html>

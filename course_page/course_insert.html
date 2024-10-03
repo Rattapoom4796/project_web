@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="stylesadmin.css">
+    <title>Insert Course</title>
+</head>
+<body>
+    <div id="navbar-container2"></div>
+    
+    <div class="container">
+        <div class="header-container">
+            <h1>Add New Course</h1>
+            <button type="button" id="backBtn" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+        </div>
+
+        <form id="courseForm" enctype="multipart/form-data">
+            <label for="course_name">Course Name:</label>
+            <input type="text" id="course_name" name="course_name" required>
+            
+            <label for="course_detail">Course Detail:</label>
+            <textarea id="course_detail" name="course_detail" required></textarea>
+
+            
+            <label for="course_place">Course Place:</label>
+            <select id="course_place" name="course_place" required>
+                <option value="พัทลุง">พัทลุง</option>
+                <option value="สงขลา">สงขลา</option>
+            </select><br>
+            
+            <label for="date">Date (DD/MM/YYYY):</label>
+            <input type="text" id="date" name="date" placeholder="DD/MM/YYYY" required>
+            
+            <label for="time">Time:</label>
+            <input type="text" id="time" name="time" placeholder="00:00" required>
+            
+            <label for="people_count">Number of People:</label>
+            <input type="number" id="people_count" name="people_count" required><br>
+            
+            <label for="image">Image:</label>
+            <input type="file" id="image" name="image" accept="image/*">
+            
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        async function loadNavbar() {
+            try {
+                const response = await fetch('navbaradmin.html');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const navbar = await response.text();
+                
+                document.querySelector('#navbar-container2').innerHTML = navbar;
+                console.log('Navbar loaded:', navbar);
+                
+                const logoutBtn = document.getElementById('logout-btn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', function(event) {
+                        console.log('Logout button clicked');
+                        event.preventDefault();
+                        const confirmLogout = confirm("Are you sure you want to log out?");
+                        if (confirmLogout) {
+                            localStorage.removeItem('access-token');
+                            window.location.href = "course_homepage.html";
+                        }
+                    });
+                } else {
+                    console.error('Logout button not found');
+                }
+            } catch (error) {
+                console.error('Error loading navbar:', error);
+            }
+        }
+
+        async function checkAuth() {
+            const token = localStorage.getItem('access-token');
+            if (!token) {
+                window.location.href = '/course_login.html';
+                return;
+            }
+            try {
+                const response = await fetch('/api/auth/validate', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = '/course_login';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = '/course_login';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAuth();
+            loadNavbar();
+
+            document.getElementById('courseForm').addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const dateInput = document.getElementById('date').value;
+                const [day, month, year] = dateInput.split('/');
+
+                if (!day || !month || !year || !isValidDate(day, month, year)) {
+                    alert('Please enter a valid date in DD/MM/YYYY format');
+                    return;
+                }
+
+                const date = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                
+                const timeInput = document.getElementById('time').value;
+                if (!isValidTime(timeInput)) {
+                    alert('Please enter a valid time in HH:MM format');
+                    return;
+                }
+                const time = timeInput;
+
+                const formData = new FormData(event.target);
+                formData.set('date', date);
+                formData.set('time', time);
+                const token = localStorage.getItem('access-token');
+                
+                try {
+                    const response = await fetch('/api/course', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error('Failed to add course');
+                    
+                    alert('Course added successfully');
+                    window.location.href = 'course_adminpage.html';
+                } catch (error) {
+                    console.error('Error adding course:', error);
+                    alert('Failed to add course');
+                }
+            });
+
+            document.getElementById('backBtn').addEventListener('click', () => {
+                window.location.href = 'course_adminpage.html';
+            });
+        });
+
+        function isValidDate(day, month, year) {
+            const d = parseInt(day, 10);
+            const m = parseInt(month, 10);
+            const y = parseInt(year, 10);
+
+            if (isNaN(d) || isNaN(m) || isNaN(y)) return false;
+
+            if (m < 1 || m > 12) return false;
+            if (d < 1 || d > 31) return false;
+
+            if (m === 2) {
+                if (d > 29) return false;
+                if (d === 29 && !isLeapYear(y)) return false;
+            }
+
+            if ((m === 4 || m === 6 || m === 9 || m === 11) && d > 30) return false;
+
+            return true;
+        }
+
+        function isLeapYear(year) {
+            return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+        }
+
+        function isValidTime(time) {
+            const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+            return timeRegex.test(time);
+        }
+    </script>
+</body>
+</html>

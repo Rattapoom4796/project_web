@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="stylesadmin.css">
+    <style>
+        /* Style for the Back button */
+        .back-btn {
+            background-color: #007bff; /* Blue background */
+            color: white; /* White text */
+            border: none;
+            border-radius: 5px; /* Rounded corners */
+            padding: 10px 20px; /* Padding */
+            font-size: 16px; /* Font size */
+            cursor: pointer; /* Pointer cursor on hover */
+            transition: background-color 0.3s ease; /* Smooth background color transition */
+        }
+
+        .back-btn:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        .back-btn i {
+            margin-right: 8px; /* Spacing between icon and text */
+        }
+
+        .back-btn:focus {
+            outline: none; /* Remove default focus outline */
+        }
+    </style>
+    <title>Camps by Year</title>
+</head>
+<body>
+    <div id="navbar-container2"></div>
+    
+    <div class="header-container">
+        <h1>Select Year</h1>
+        <button id="backBtn" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+    </div>
+
+    <div class="filter-container">
+        <label for="yearFilter">Select Year:</label>
+        <select id="yearFilter">
+            <!-- Options will be populated by JavaScript -->
+        </select>
+    </div>
+    
+    <table id="campsTable">
+        <thead>
+            <tr>
+                <th>ชื่อค่าย</th>
+                <th>หัวข้อค่าย</th>
+                <th>เขต</th>
+                <th>วันเดือนปี</th>
+                <th>จำนวนคน</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- ข้อมูลจะถูกเพิ่มที่นี่โดย JavaScript -->
+        </tbody>
+    </table>
+
+    <script>
+        async function loadNavbar() {
+            try {
+                const response = await fetch('navbaradmin.html');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const navbar = await response.text();
+                
+                document.querySelector('#navbar-container2').innerHTML = navbar;
+                console.log('Navbar loaded:', navbar); // ตรวจสอบเนื้อหาที่โหลดมา
+                
+                // ตั้งค่า event listener หลังจากที่ Navbar โหลดเสร็จ
+                const logoutBtn = document.getElementById('logout-btn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', function(event) {
+                        console.log('Logout button clicked'); // ตรวจสอบการคลิก
+                        event.preventDefault(); // Prevent default link behavior
+                        const confirmLogout = confirm("Are you sure you want to log out?");
+                        if (confirmLogout) {
+                            localStorage.removeItem('access-token'); // Remove token from localStorage
+                            window.location.href = "camp_homepage.html"; // Redirect to camp_homepage.html
+                        }
+                    });
+                } else {
+                    console.error('Logout button not found');
+                }
+            } catch (error) {
+                console.error('Error loading navbar:', error);
+            }
+        }
+
+        async function loadYearOptions() {
+            // Assuming you have a list of years you want to show in the dropdown
+            const years = [2021, 2022, 2023, 2024, 2025]; // Modify this as needed
+
+            const yearFilter = document.getElementById('yearFilter'); //เลือกแต่ละปี
+            
+            const allOption = document.createElement('option'); //เลือกทุกปี
+            allOption.value = 'all';
+            allOption.textContent = 'Select';
+            yearFilter.appendChild(allOption);
+
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearFilter.appendChild(option);
+            });
+
+            // Set up an event listener to redirect to the new page with the selected year
+            yearFilter.addEventListener('change', () => {
+                const selectedYear = yearFilter.value;
+                if (selectedYear === 'all') {
+                    window.location.href = 'camps_admindate.html'; // Redirect to show all camps
+                } else {
+                    window.location.href = `camps_admindate.html?year=${selectedYear}`; // Redirect to the new page with the selected year
+                }
+            });
+        }
+        function formatDate(dateString) {
+            // Return date in format DD/MM/YYYY
+            const date = new Date(dateString);
+            const day = ("0" + date.getDate()).slice(-2);
+            const month = ("0" + (date.getMonth() + 1)).slice(-2);
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        async function loadCamps(year) {
+            try {
+                const response = await fetch(`/api/camps?year=${year}`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const camps = await response.json();
+                
+                const tbody = document.querySelector('#campsTable tbody');
+                tbody.innerHTML = ''; // Clear existing rows
+
+                if (camps.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="6">No camps found for the selected year.</td>`;
+                    tbody.appendChild(row);
+                    return;
+                }
+
+                camps.forEach(camp => {
+                    const campYear = new Date(camp.date).getFullYear(); // Extract the year from the date
+                    if (campYear === parseInt(year, 10)) { // Check if it matches the selected year
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>
+                                <div class="camp-name-container">
+                                    ${camp.camp_name}
+                                    <br>
+                                    <button class="more-detail-btn" data-id="${camp._id}">
+                                        <i class="fa-solid fa-list"></i> More Detail
+                                    </button>
+                                </div>
+                            </td>
+                            <td>${camp.camp_topic}</td>
+                            <td>${camp.camp_place}</td>
+                            <td>${new Date(camp.date).toLocaleDateString()}</td>
+                            <td>${camp.people_count}</td>
+                            <td>
+                                <button class="edit-btn" data-id="${camp._id}">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="delete-btn" data-id="${camp._id}">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
+                            </td>
+                            `;
+                            tbody.appendChild(row);
+                        }
+                    });
+
+                    // Add event listeners for buttons
+                    addButtonEventListeners();
+
+                } catch (error) {
+                    console.error('Error fetching camps:', error);
+                }
+            }
+
+            function addButtonEventListeners() {
+                // Add event listeners for "More Detail" buttons
+                const moreDetailButtons = document.querySelectorAll('.more-detail-btn');
+                moreDetailButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const campId = this.getAttribute('data-id');
+                        window.location.href = `camp_detail.html?id=${campId}`;
+                    });
+                });
+
+                // Add event listeners for "Edit" buttons
+                const editButtons = document.querySelectorAll('.edit-btn');
+                editButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const campId = this.getAttribute('data-id');
+                        window.location.href = `camp_edit.html?id=${campId}`; // Navigate to edit page
+                    });
+                });
+
+                // Add event listeners for "Delete" buttons
+                const deleteButtons = document.querySelectorAll('.delete-btn');
+                deleteButtons.forEach(button => {
+                    button.addEventListener('click', async function() {
+                        const campId = this.getAttribute('data-id');
+                        const confirmDelete = confirm("Are you sure you want to delete this camp?");
+                        if (confirmDelete) {
+                            await deleteCamp(campId);
+                        }
+                    });
+                });
+            }
+
+            async function deleteCamp(campId) {
+                try {
+                    const token = localStorage.getItem('access-token');
+                    const response = await fetch(`/api/camp/${campId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    if (!response.ok) throw new Error('Failed to delete camp');
+                    
+                    // ลบข้อมูลจากตารางหลังจากที่ลบสำเร็จ
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const year = urlParams.get('year');
+                    loadCamps(year);
+                } catch (error) {
+                    console.error('Error deleting camp:', error);
+                }
+            }
+
+            async function checkAuth() {
+                const token = localStorage.getItem('access-token');
+                if (!token) {
+                    window.location.href = '/camp_login.html';
+                    return;
+                }
+                try {
+                    const response = await fetch('/api/auth/validate', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.status === 401 || response.status === 403) {
+                        window.location.href = '/camp_login';
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    window.location.href = '/camp_login';
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', async () => {
+                await checkAuth();
+                loadNavbar();
+
+                // Get the year from the URL query parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const year = urlParams.get('year') || new Date().getFullYear(); // Use current year if not specified
+
+                loadYearOptions(); // Load the year options
+                loadCamps(year); // Load camps for the selected year
+
+                // Add event listener for the Back button
+                document.getElementById('backBtn').addEventListener('click', () => {
+                    window.location.href = 'camp_adminpage.html'; // Navigate back to the admin page
+                });
+            });
+    </script>
+</body>
+</html>

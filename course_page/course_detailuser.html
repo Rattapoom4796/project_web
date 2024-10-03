@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="stylesadmin.css">
+    <link rel="stylesheet" href="stylesdetailcourse.css">
+    <title>Course Detail</title>
+</head>
+<body>
+    <div id="navbar-container2"></div>
+
+    <div class="header-container">
+        <h1>Course Detail</h1>
+        <a href="course_homepage.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <div class="content-container">
+        <div id="course-detail-container">
+            <!-- Details will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        async function loadNavbar() {
+            try {
+                const response = await fetch('navbar.html');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const navbar = await response.text();
+                
+                document.querySelector('#navbar-container2').innerHTML = navbar;
+                console.log('Navbar loaded:', navbar);
+            } catch (error) {
+                console.error('Error loading navbar:', error);
+            }
+        }
+
+        async function loadCourseDetail() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = urlParams.get('id');
+
+            if (!courseId) {
+                alert('No course ID provided.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/course/${courseId}`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const course = await response.json();
+                
+                const detailContainer = document.querySelector('#course-detail-container');
+                detailContainer.innerHTML = `
+                    <div class="course-detail-card">
+                        <div class="course-info">
+                            <h2>${course.course_name}</h2>
+                            <p><strong>Details:</strong> ${course.course_detail}</p>
+                            <p><strong>Place:</strong> ${course.course_place}</p>
+                            <p><strong>Date:</strong> ${new Date(course.date).toLocaleDateString()}</p>
+                            <p><strong>Time:</strong> ${course.time}</p>
+                            <p><strong>People Count:</strong> ${course.people_count}</p>
+                        </div>
+                        <div class="course-image-container">
+                            <img src="/file_img/${course.image}" alt="Course Image" class="course-image" />
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error fetching course details:', error);
+                document.querySelector('#course-detail-container').innerHTML = '<p>Error loading course details.</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadNavbar();
+            await loadCourseDetail();
+        });
+    </script>
+</body>
+</html>
