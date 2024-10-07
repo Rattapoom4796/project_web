@@ -35,7 +35,7 @@ exports.login = async (req, res) => {
             { AdminId: admin._id },
             process.env.REFRESH_TOKEN_SECRET
         );
-        res.json({ accessToken, refreshToken });
+        res.json({ username ,accessToken, refreshToken });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
